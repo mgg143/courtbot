@@ -2,13 +2,14 @@
 import sys
 
 from dotenv import dotenv_values
-from flask import Flask
+from flask import Flask, request
 from jinja2 import Environment, PackageLoader
+
+import data
 
 cfg = dotenv_values(".env")
 
 sys.path.append(f"{cfg['APP_HOME']}")
-import data
 
 courtbot = Flask(__name__)
 application = courtbot
@@ -28,16 +29,21 @@ def courtbot_main():
     return main.render(**context)
 
 
-@courtbot.route(f"/{cfg['WWW']}getAppearances/<params>")
-def courtbot_appearances(params):
-    return data.find_appearances(params)
+@courtbot.route(f"/{cfg['WWW']}getRandom")
+def courtbot_random():
+    return data.find_random()
 
 
-@courtbot.route(f"/{cfg['WWW']}register/<params>")
+@courtbot.route(f"/{cfg['WWW']}getAppearances")
+def courtbot_appearances():
+    return data.find_appearances(request.args)
+
+
+@courtbot.route(f"/{cfg['WWW']}register")
 def courtbot_register(params):
-    return data.register_appearances(params)
+    return data.register_appearances(request.args)
 
 
 if __name__ == '__main__':
-    courtbot.run()
+    courtbot.run(port=8080)
 
